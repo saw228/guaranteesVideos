@@ -46,7 +46,6 @@
             background: #121212;
             overflow: hidden;
             position: relative;
-            border-radius: 32px;
         }
 
         .status-bar {
@@ -1674,7 +1673,7 @@
             document.getElementById('loadingOverlay').style.display = 'flex';
             const sp = document.querySelector('.loading-spinner');
             function spin() {
-                spinRot += 8;
+                spinRot += 2;
                 sp.style.transform = `rotate(${spinRot}deg)`;
                 spinnerRAF = requestAnimationFrame(spin);
             }
@@ -2089,45 +2088,64 @@
            ===================================================== */
         async function downloadVideo() {
             const btn = document.querySelector('.btn-download');
-            btn.textContent = 'Запись...';
-            btn.disabled = true;
 
-            const phoneScreen = document.querySelector('.phone-screen');
-            const canvas = document.createElement('canvas');
-            canvas.width = 355;
-            canvas.height = 792;
-            const ctx = canvas.getContext('2d');
+            try {
+                const phoneScreen = document.querySelector('.phone-screen');
 
-            const stream = canvas.captureStream(30);
-            const mr = new MediaRecorder(stream, { mimeType: 'video/webm', videoBitsPerSecond: 5000000 });
-            const chunks = [];
-            mr.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
-            mr.onstop = () => {
-                const blob = new Blob(chunks, { type: 'video/webm' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url; a.download = `sber-transfer-${Date.now()}.webm`;
-                document.body.appendChild(a); a.click(); document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                btn.textContent = 'Скачать'; btn.disabled = false;
-            };
+                const stream = await navigator.mediaDevices.getDisplayMedia({
+                    video: {
+                        frameRate: 60,
+                        displaySurface: 'browser'
+                    },
+                    audio: false,
+                    preferCurrentTab: true
+                });
 
-            let recording = true;
-            async function captureFrame() {
-                if (!recording) return;
-                try {
-                    const tmp = await html2canvas(phoneScreen, { backgroundColor: '#000', scale: 1, logging: false, useCORS: true, width: 355, height: 792 });
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    ctx.drawImage(tmp, 0, 0, canvas.width, canvas.height);
-                } catch (err) { console.error(err); }
-                requestAnimationFrame(captureFrame);
+                if ('CropTarget' in window) {
+                    const cropTarget = await CropTarget.fromElement(phoneScreen);
+                    const [videoTrack] = stream.getVideoTracks();
+                    await videoTrack.cropTo(cropTarget);
+                }
+
+                const mr = new MediaRecorder(stream, {
+                    mimeType: 'video/webm;codecs=vp9',
+                    videoBitsPerSecond: 8000000
+                });
+
+                const chunks = [];
+                mr.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+                mr.onstop = () => {
+                    stream.getTracks().forEach(t => t.stop());
+                    const blob = new Blob(chunks, { type: 'video/webm' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `sber-transfer-${Date.now()}.webm`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    btn.textContent = 'Скачать';
+                    btn.disabled = false;
+                };
+
+                btn.textContent = 'Запись...';
+                btn.disabled = true;
+
+                mr.start();
+                await wait(500);
+                startAnimation();
+
+                // Ждём пока анимация закончится (20 секунд как было оригинально)
+                await wait(20000);
+                mr.stop();
+
+            } catch (e) {
+                console.error(e);
+                btn.textContent = 'Скачать';
+                btn.disabled = false;
+                alert('Разрешите захват экрана в диалоге браузера');
             }
-
-            mr.start();
-            startAnimation();
-            captureFrame();
-
-            setTimeout(() => { recording = false; mr.stop(); }, 20000);
         }
     </script>
 </body>
