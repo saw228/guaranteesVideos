@@ -2090,33 +2090,110 @@
             const btn = document.querySelector('.btn-download');
 
             try {
+                console.log('🎬 Начинаем запись видео...');
+
                 const phoneScreen = document.querySelector('.phone-screen');
+                if (!phoneScreen) {
+                    throw new Error('Элемент .phone-screen не найден');
+                }
+
+                // Получаем позицию и размер элемента
+                const rect = phoneScreen.getBoundingClientRect();
+                console.log('📱 Размеры элемента:', rect);
 
                 const stream = await navigator.mediaDevices.getDisplayMedia({
                     video: {
-                        frameRate: 60,
+                        frameRate: 30,
                         displaySurface: 'browser'
                     },
                     audio: false,
                     preferCurrentTab: true
                 });
 
+                console.log('✅ Поток получен');
+
+                // ОБЯЗАТЕЛЬНО пытаемся применить CropTarget
+                let cropApplied = false;
                 if ('CropTarget' in window) {
-                    const cropTarget = await CropTarget.fromElement(phoneScreen);
-                    const [videoTrack] = stream.getVideoTracks();
-                    await videoTrack.cropTo(cropTarget);
+                    try {
+                        console.log('✂️ Применяем CropTarget...');
+                        const cropTarget = await CropTarget.fromElement(phoneScreen);
+                        const [videoTrack] = stream.getVideoTracks();
+                        await videoTrack.cropTo(cropTarget);
+                        cropApplied = true;
+                        console.log('✅ CropTarget успешно применен!');
+                    } catch (cropError) {
+                        console.warn('⚠️ CropTarget не сработал:', cropError);
+                    }
+                } else {
+                    console.warn('⚠️ CropTarget не поддерживается в этом браузере');
+                }
+
+                // Если CropTarget не сработал, показываем инструкцию
+                if (!cropApplied) {
+                    // Подсвечиваем нужный элемент
+                    phoneScreen.style.outline = '5px solid red';
+                    phoneScreen.style.boxShadow = '0 0 20px rgba(255,0,0,0.5)';
+
+                    alert(`⚠️ ВАЖНО! 
+            
+1. В диалоге захвата экрана выберите "Вкладка браузера" (не весь экран)
+2. Обратите внимание на красную рамку вокруг нужного блока
+3. Нажмите "Поделиться"
+
+После записи рамка исчезнет.`);
+
+                    // Убираем подсветку через 3 секунды
+                    setTimeout(() => {
+                        phoneScreen.style.outline = '';
+                        phoneScreen.style.boxShadow = '';
+                    }, 3000);
+                }
+
+                const supportedTypes = [
+                    'video/webm;codecs=vp9',
+                    'video/webm;codecs=vp8',
+                    'video/webm'
+                ];
+
+                let selectedType = supportedTypes.find(type => MediaRecorder.isTypeSupported(type));
+                if (!selectedType) {
+                    throw new Error('Браузер не поддерживает запись видео');
                 }
 
                 const mr = new MediaRecorder(stream, {
-                    mimeType: 'video/webm;codecs=vp9',
-                    videoBitsPerSecond: 8000000
+                    mimeType: selectedType,
+                    videoBitsPerSecond: 3000000
                 });
 
                 const chunks = [];
-                mr.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+
+                mr.ondataavailable = e => {
+                    if (e.data.size > 0) {
+                        chunks.push(e.data);
+                        console.log(`📦 Записано:`, e.data.size, 'байт');
+                    }
+                };
+
                 mr.onstop = () => {
+                    console.log('🛑 Запись завершена');
+
+                    // Убираем подсветку если была
+                    phoneScreen.style.outline = '';
+                    phoneScreen.style.boxShadow = '';
+
                     stream.getTracks().forEach(t => t.stop());
-                    const blob = new Blob(chunks, { type: 'video/webm' });
+
+                    if (chunks.length === 0) {
+                        alert('Ошибка: не удалось записать видео');
+                        btn.textContent = 'Скачать';
+                        btn.disabled = false;
+                        return;
+                    }
+
+                    const blob = new Blob(chunks, { type: selectedType });
+                    console.log('💾 Итоговый размер:', blob.size, 'байт');
+
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
@@ -2124,7 +2201,18 @@
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
+
+                    setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+                    btn.textContent = 'Скачать';
+                    btn.disabled = false;
+                };
+
+                mr.onerror = (error) => {
+                    console.error('❌ Ошибка:', error);
+                    phoneScreen.style.outline = '';
+                    phoneScreen.style.boxShadow = '';
+                    stream.getTracks().forEach(t => t.stop());
                     btn.textContent = 'Скачать';
                     btn.disabled = false;
                 };
@@ -2132,19 +2220,22 @@
                 btn.textContent = 'Запись...';
                 btn.disabled = true;
 
-                mr.start();
+                mr.start(1000);
                 await wait(500);
                 startAnimation();
-
-                // Ждём пока анимация закончится (20 секунд как было оригинально)
                 await wait(20000);
                 mr.stop();
 
             } catch (e) {
-                console.error(e);
+                console.error('💥 Ошибка:', e);
                 btn.textContent = 'Скачать';
                 btn.disabled = false;
-                alert('Разрешите захват экрана в диалоге браузера');
+
+                if (e.name === 'NotAllowedError') {
+                    alert('Разрешите захват экрана в диалоге браузера');
+                } else {
+                    alert('Ошибка: ' + e.message);
+                }
             }
         }
     </script>
