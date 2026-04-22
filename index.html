@@ -2152,18 +2152,18 @@
 
                 const supportedTypes = [
                     'video/webm;codecs=vp9',
-                    'video/webm;codecs=vp8',
-                    'video/webm'
+                    'video/webm;codecs=vp8'
                 ];
 
                 let selectedType = supportedTypes.find(type => MediaRecorder.isTypeSupported(type));
+
                 if (!selectedType) {
-                    throw new Error('Браузер не поддерживает запись видео');
+                    throw new Error('Нет поддерживаемого формата записи');
                 }
 
                 const mr = new MediaRecorder(stream, {
                     mimeType: selectedType,
-                    videoBitsPerSecond: 3000000
+                    videoBitsPerSecond: 8000000
                 });
 
                 const chunks = [];
@@ -2220,7 +2220,7 @@
                 btn.textContent = 'Запись...';
                 btn.disabled = true;
 
-                mr.start(1000);
+                mr.start();
                 await wait(500);
                 startAnimation();
                 await wait(20000);
