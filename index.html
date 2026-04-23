@@ -13,7 +13,9 @@
         /* =====================================================
            СБРОС И БАЗОВЫЕ НАСТРОЙКИ — одинаковые на всех устройствах
            ===================================================== */
-        *, *::before, *::after {
+        *,
+        *::before,
+        *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -22,7 +24,8 @@
         }
 
         html {
-            font-size: 16px; /* фиксируем базовый размер */
+            font-size: 16px;
+            /* фиксируем базовый размер */
         }
 
         body {
@@ -67,7 +70,6 @@
             min-width: 375px;
             min-height: 812px;
             background: #1c1c1e;
-            border-radius: 40px;
             padding: 10px;
             flex-shrink: 0;
         }
@@ -78,7 +80,6 @@
             background: #121212;
             overflow: hidden;
             position: relative;
-            border-radius: 30px;
         }
 
         .status-bar {
@@ -887,9 +888,17 @@
         }
 
         @keyframes pulseFinal {
-            0% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.4); }
-            70% { box-shadow: 0 0 0 16px rgba(39, 174, 96, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0); }
+            0% {
+                box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 16px rgba(39, 174, 96, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(39, 174, 96, 0);
+            }
         }
 
         .final-actions {
@@ -1125,292 +1134,314 @@
 
 <body>
 
-<div class="page-wrapper">
-    <!-- ПАНЕЛЬ НАСТРОЕК -->
-    <div class="input-panel">
-        <div class="panel-title">Данные для перевода</div>
+    <div class="page-wrapper">
+        <!-- ПАНЕЛЬ НАСТРОЕК -->
+        <div class="input-panel">
+            <div class="panel-title">Данные для перевода</div>
 
-        <div class="input-group">
-            <label>Время</label>
-            <input type="text" id="mainTime" value="10:00">
+            <div class="input-group">
+                <label>Время</label>
+                <input type="text" id="mainTime" value="10:00">
+            </div>
+
+            <div class="input-group">
+                <label>Номер карты получателя</label>
+                <input type="text" id="userCardNumber" placeholder="0000 0000 0000 0000" maxlength="19">
+            </div>
+
+            <div class="input-group">
+                <label>Сумма перевода</label>
+                <input type="text" id="transferAmount" placeholder="100 ₽">
+            </div>
+
+            <div class="input-group">
+                <label>Платежный счёт</label>
+                <input type="text" id="paymentAccount" placeholder="40817810099910004312">
+            </div>
+
+            <div class="panel-section-title">Тип батареи</div>
+
+            <div class="panel-row">
+                <button class="tpl-btn" onclick="setBatteryMode('simple')">Без цифр</button>
+                <button class="tpl-btn" onclick="setBatteryMode('detailed')">С процентом</button>
+            </div>
+
+            <div class="input-group">
+                <label>Заряд батареи</label>
+                <input type="range" min="0" max="100" value="50" id="slider">
+            </div>
         </div>
 
-        <div class="input-group">
-            <label>Номер карты получателя</label>
-            <input type="text" id="userCardNumber" placeholder="0000 0000 0000 0000" maxlength="19">
-        </div>
-
-        <div class="input-group">
-            <label>Сумма перевода</label>
-            <input type="text" id="transferAmount" placeholder="100 ₽">
-        </div>
-
-        <div class="input-group">
-            <label>Платежный счёт</label>
-            <input type="text" id="paymentAccount" placeholder="40817810099910004312">
-        </div>
-
-        <div class="panel-section-title">Тип батареи</div>
-
-        <div class="panel-row">
-            <button class="tpl-btn" onclick="setBatteryMode('simple')">Без цифр</button>
-            <button class="tpl-btn" onclick="setBatteryMode('detailed')">С процентом</button>
-        </div>
-
-        <div class="input-group">
-            <label>Заряд батареи</label>
-            <input type="range" min="0" max="100" value="50" id="slider">
-        </div>
-    </div>
-
-    <!-- ТЕЛЕФОН + КНОПКИ -->
-    <div class="right-column">
-        <div class="phone-container" id="phone">
-            <div class="phone-screen">
-                <!-- STATUS BAR -->
-                <div class="status-bar">
-                    <div class="status-left">
-                        <span class="status-left-text">10:00</span>
-                    </div>
-                    <img class="status-bar-image" src="./Screenshot_8-removebg-preview.png" alt="">
-                    <div class="status-right">
-                        <img src="./svyaz.png" alt="" class="signal">
-                        <img src="./wifi.png" alt="" class="wifi">
-                        <div id="batteryContainer"></div>
-                    </div>
-                </div>
-
-                <!-- MAIN SCREEN -->
-                <div class="bank-content" id="bankContent">
-                    <div class="header">
-                        <span class="back-arrow">‹</span>
-                        <div class="header-title">Новый перевод</div>
-                    </div>
-
-                    <div class="tabs">
-                        <div class="tab active">По России</div>
-                        <div class="tab">В другую страну</div>
-                    </div>
-
-                    <div class="card-section">
-                        <div class="card-number-input">
-                            <div class="input-content">
-                                <span class="input-label">По карте</span>
-                                <span class="card-number" id="displayCardNumber">2204 3204 5610 4530</span>
-                            </div>
-                            <div class="input-actions">
-                                <button class="clear-btn">×</button>
-                                <img class="scan-icon" src="./scan-image.png" alt="">
-                            </div>
+        <!-- ТЕЛЕФОН + КНОПКИ -->
+        <div class="right-column">
+            <div class="phone-container" id="phone">
+                <div class="phone-screen">
+                    <!-- STATUS BAR -->
+                    <div class="status-bar">
+                        <div class="status-left">
+                            <span class="status-left-text">10:00</span>
+                        </div>
+                        <img class="status-bar-image" src="./Screenshot_8-removebg-preview.png" alt="">
+                        <div class="status-right">
+                            <img src="./svyaz.png" alt="" class="signal">
+                            <img src="./wifi.png" alt="" class="wifi">
+                            <div id="batteryContainer"></div>
                         </div>
                     </div>
 
-                    <div class="scan-button">
-                        <img src="./Image-removebg-preview.png" alt="" class="scan-button-icon">
-                        <span class="scan-button-text">Сканировать карту</span>
-                    </div>
-
-                    <div class="info-text">
-                        Переводите клиентам Сбербанка или на карты МИР, Visa, MasterCard других банков
-                    </div>
-
-                    <div class="keyboard-header">
-                        <img src="./Image__1_-removebg-preview.png" alt="" class="keyboard-header-img">
-                        <button class="continue-btn-green">ПРОДОЛЖИТЬ</button>
-                    </div>
-
-                    <div class="keyboard">
-                        <div class="keyboard-grid">
-                            <div class="key" data-value="1">1</div>
-                            <div class="key" data-value="2">2<div class="key-letters">А Б В Г</div></div>
-                            <div class="key" data-value="3">3<div class="key-letters">Д Е Ё Ж З</div></div>
-                            <div class="key" data-value="4">4<div class="key-letters">И Й К Л</div></div>
-                            <div class="key" data-value="5">5<div class="key-letters">М Н О П</div></div>
-                            <div class="key" data-value="6">6<div class="key-letters">Р С Т У</div></div>
-                            <div class="key" data-value="7">7<div class="key-letters">Ф Х Ц Ч</div></div>
-                            <div class="key" data-value="8">8<div class="key-letters">Ш Щ Ъ Ы</div></div>
-                            <div class="key" data-value="9">9<div class="key-letters">Ь Э Ю Я</div></div>
-                            <div></div>
-                            <div class="key zero" data-value="0">0</div>
-                            <div class="key delete">⌫</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- LOADING OVERLAY -->
-                <div class="loading-overlay" id="loadingOverlay">
-                    <div class="loading-spinner"></div>
-                </div>
-
-                <!-- AMOUNT SCREEN -->
-                <div class="amount-screen" id="amountScreen">
-                    <div class="transfer-header">
-                        <span class="back-arrow">‹</span>
-                        <div>
-                            <div class="transfer-title">В другой банк по карте</div>
-                            <div class="transfer-subtitle">Шаг 1 из 2</div>
-                        </div>
-                    </div>
-
-                    <div class="amount-content">
-                        <div class="amount-row">
-                            <div class="transfer-row-block">
-                                <span style="margin-right: 125px;" class="main-value" id="amountScreenCard">•• 4530</span>
-                            </div>
-                            <img class="bank-icon" src="./bank-icon.png" alt="">
+                    <!-- MAIN SCREEN -->
+                    <div class="bank-content" id="bankContent">
+                        <div class="header">
+                            <span class="back-arrow">‹</span>
+                            <div class="header-title">Новый перевод</div>
                         </div>
 
-                        <div class="amount-row">
-                            <div class="transfer-row-block">
-                                <span class="amount-display" id="amountDisplay">0 ₽</span>
-                                <span class="commission-text" id="amountCommissionDisplay">Комиссия 0 ₽</span>
+                        <div class="tabs">
+                            <div class="tab active">По России</div>
+                            <div class="tab">В другую страну</div>
+                        </div>
+
+                        <div class="card-section">
+                            <div class="card-number-input">
+                                <div class="input-content">
+                                    <span class="input-label">По карте</span>
+                                    <span class="card-number" id="displayCardNumber">2204 3204 5610 4530</span>
+                                </div>
+                                <div class="input-actions">
+                                    <button class="clear-btn">×</button>
+                                    <img class="scan-icon" src="./scan-image.png" alt="">
+                                </div>
                             </div>
                         </div>
 
-                        <span class="transfer-label-m">Спишем <span class="transfer-label-s" id="amountTotalDisplay"></span> ₽</span>
-
-                        <div class="amount-row">
-                            <div style="margin-right: 95px;" class="transfer-row-block">
-                                <span class="transfer-label">Откуда</span>
-                                <span class="main-value">12 460 540 ₽</span>
-                                <span class="payment-account-text" id="amountPaymentAccount">Платёжный счёт •• 6425</span>
-                            </div>
-                            <img src="./ruble-icon.png" alt="" class="ruble-icon-2">
-                            <img class="arrowDown" src="./arrowDown.png" alt="">
+                        <div class="scan-button">
+                            <img src="./Image-removebg-preview.png" alt="" class="scan-button-icon">
+                            <span class="scan-button-text">Сканировать карту</span>
                         </div>
 
-                        <div class="keyboard-header" id="amountKeyboardHeader">
+                        <div class="info-text">
+                            Переводите клиентам Сбербанка или на карты МИР, Visa, MasterCard других банков
+                        </div>
+
+                        <div class="keyboard-header">
                             <img src="./Image__1_-removebg-preview.png" alt="" class="keyboard-header-img">
-                            <button class="continue-btn-green" id="amountContinueBtn">ПРОДОЛЖИТЬ</button>
+                            <button class="continue-btn-green">ПРОДОЛЖИТЬ</button>
                         </div>
-                    </div>
 
-                    <div class="keyboard" id="amountKeyboard">
-                        <div class="keyboard-grid">
-                            <div class="key" data-value="1">1</div>
-                            <div class="key" data-value="2">2<div class="key-letters">А Б В Г</div></div>
-                            <div class="key" data-value="3">3<div class="key-letters">Д Е Ё Ж З</div></div>
-                            <div class="key" data-value="4">4<div class="key-letters">И Й К Л</div></div>
-                            <div class="key" data-value="5">5<div class="key-letters">М Н О П</div></div>
-                            <div class="key" data-value="6">6<div class="key-letters">Р С Т У</div></div>
-                            <div class="key" data-value="7">7<div class="key-letters">Ф Х Ц Ч</div></div>
-                            <div class="key" data-value="8">8<div class="key-letters">Ш Щ Ъ Ы</div></div>
-                            <div class="key" data-value="9">9<div class="key-letters">Ь Э Ю Я</div></div>
-                            <div></div>
-                            <div class="key zero" data-value="0">0</div>
-                            <div class="key delete">⌫</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TRANSFER SCREEN -->
-                <div class="transfer-screen" id="transferScreen">
-                    <div class="transfer-header">
-                        <span class="back-arrow">‹</span>
-                        <div>
-                            <div class="transfer-title">В другой банк по карте</div>
-                            <div class="transfer-subtitle">Шаг 2 из 2</div>
-                        </div>
-                    </div>
-
-                    <div class="transfer-content">
-                        <div class="transfer-row">
-                            <div class="transfer-row-block">
-                                <span class="transfer-label">Куда</span>
-                                <span class="main-value" id="transferToCard">•• 4530</span>
+                        <div class="keyboard">
+                            <div class="keyboard-grid">
+                                <div class="key" data-value="1">1</div>
+                                <div class="key" data-value="2">2<div class="key-letters">А Б В Г</div>
+                                </div>
+                                <div class="key" data-value="3">3<div class="key-letters">Д Е Ё Ж З</div>
+                                </div>
+                                <div class="key" data-value="4">4<div class="key-letters">И Й К Л</div>
+                                </div>
+                                <div class="key" data-value="5">5<div class="key-letters">М Н О П</div>
+                                </div>
+                                <div class="key" data-value="6">6<div class="key-letters">Р С Т У</div>
+                                </div>
+                                <div class="key" data-value="7">7<div class="key-letters">Ф Х Ц Ч</div>
+                                </div>
+                                <div class="key" data-value="8">8<div class="key-letters">Ш Щ Ъ Ы</div>
+                                </div>
+                                <div class="key" data-value="9">9<div class="key-letters">Ь Э Ю Я</div>
+                                </div>
+                                <div></div>
+                                <div class="key zero" data-value="0">0</div>
+                                <div class="key delete">⌫</div>
                             </div>
-                            <img class="bank-icon" src="./bank-icon.png" alt="">
                         </div>
+                    </div>
 
-                        <div class="transfer-row">
-                            <div class="transfer-row-block">
-                                <span class="transfer-label">Сколько</span>
-                                <span class="main-value" id="transferAmountDisplay">10 ₽</span>
-                                <span class="commission-text" id="commissionDisplay">Комиссия 30 ₽</span>
+                    <!-- LOADING OVERLAY -->
+                    <div class="loading-overlay" id="loadingOverlay">
+                        <div class="loading-spinner"></div>
+                    </div>
+
+                    <!-- AMOUNT SCREEN -->
+                    <div class="amount-screen" id="amountScreen">
+                        <div class="transfer-header">
+                            <span class="back-arrow">‹</span>
+                            <div>
+                                <div class="transfer-title">В другой банк по карте</div>
+                                <div class="transfer-subtitle">Шаг 1 из 2</div>
                             </div>
                         </div>
 
-                        <div class="transfer-row">
-                            <div class="transfer-row-block">
-                                <span class="transfer-label">Спишем</span>
-                                <span class="main-value" id="totalAmountDisplay">40 ₽</span>
+                        <div class="amount-content">
+                            <div class="amount-row">
+                                <div class="transfer-row-block">
+                                    <span style="margin-right: 125px;" class="main-value" id="amountScreenCard">••
+                                        4530</span>
+                                </div>
+                                <img class="bank-icon" src="./bank-icon.png" alt="">
+                            </div>
+
+                            <div class="amount-row">
+                                <div class="transfer-row-block">
+                                    <span class="amount-display" id="amountDisplay">0 ₽</span>
+                                    <span class="commission-text" id="amountCommissionDisplay">Комиссия 0 ₽</span>
+                                </div>
+                            </div>
+
+                            <span class="transfer-label-m">Спишем <span class="transfer-label-s"
+                                    id="amountTotalDisplay"></span> ₽</span>
+
+                            <div class="amount-row">
+                                <div style="margin-right: 95px;" class="transfer-row-block">
+                                    <span class="transfer-label">Откуда</span>
+                                    <span class="main-value">12 460 540 ₽</span>
+                                    <span class="payment-account-text" id="amountPaymentAccount">Платёжный счёт ••
+                                        6425</span>
+                                </div>
+                                <img src="./ruble-icon.png" alt="" class="ruble-icon-2">
+                                <img class="arrowDown" src="./arrowDown.png" alt="">
+                            </div>
+
+                            <div class="keyboard-header" id="amountKeyboardHeader">
+                                <img src="./Image__1_-removebg-preview.png" alt="" class="keyboard-header-img">
+                                <button class="continue-btn-green" id="amountContinueBtn">ПРОДОЛЖИТЬ</button>
                             </div>
                         </div>
 
-                        <div class="transfer-row">
-                            <div class="transfer-row-block">
-                                <span class="transfer-label">Откуда</span>
-                                <span class="main-value">12 460 540 ₽</span>
-                                <span class="payment-account-text" id="paymentAccountDisplay">Платёжный счёт •• 6425</span>
+                        <div class="keyboard" id="amountKeyboard">
+                            <div class="keyboard-grid">
+                                <div class="key" data-value="1">1</div>
+                                <div class="key" data-value="2">2<div class="key-letters">А Б В Г</div>
+                                </div>
+                                <div class="key" data-value="3">3<div class="key-letters">Д Е Ё Ж З</div>
+                                </div>
+                                <div class="key" data-value="4">4<div class="key-letters">И Й К Л</div>
+                                </div>
+                                <div class="key" data-value="5">5<div class="key-letters">М Н О П</div>
+                                </div>
+                                <div class="key" data-value="6">6<div class="key-letters">Р С Т У</div>
+                                </div>
+                                <div class="key" data-value="7">7<div class="key-letters">Ф Х Ц Ч</div>
+                                </div>
+                                <div class="key" data-value="8">8<div class="key-letters">Ш Щ Ъ Ы</div>
+                                </div>
+                                <div class="key" data-value="9">9<div class="key-letters">Ь Э Ю Я</div>
+                                </div>
+                                <div></div>
+                                <div class="key zero" data-value="0">0</div>
+                                <div class="key delete">⌫</div>
                             </div>
-                            <img src="./ruble-icon.png" alt="" class="ruble-icon">
                         </div>
                     </div>
 
-                    <button class="transfer-button" id="transferButtonText">Перевести 10 ₽</button>
-                </div>
+                    <!-- TRANSFER SCREEN -->
+                    <div class="transfer-screen" id="transferScreen">
+                        <div class="transfer-header">
+                            <span class="back-arrow">‹</span>
+                            <div>
+                                <div class="transfer-title">В другой банк по карте</div>
+                                <div class="transfer-subtitle">Шаг 2 из 2</div>
+                            </div>
+                        </div>
 
-                <!-- SUCCESS SCREEN -->
-                <div class="success-screen" id="successScreen">
-                    <div class="success-wave" id="successWave"></div>
+                        <div class="transfer-content">
+                            <div class="transfer-row">
+                                <div class="transfer-row-block">
+                                    <span class="transfer-label">Куда</span>
+                                    <span class="main-value" id="transferToCard">•• 4530</span>
+                                </div>
+                                <img class="bank-icon" src="./bank-icon.png" alt="">
+                            </div>
 
-                    <div class="success-circle" id="successCircle">
-                        <svg class="success-check" id="successCheck" viewBox="0 0 24 24">
-                            <path fill="#27ae60" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                        </svg>
+                            <div class="transfer-row">
+                                <div class="transfer-row-block">
+                                    <span class="transfer-label">Сколько</span>
+                                    <span class="main-value" id="transferAmountDisplay">10 ₽</span>
+                                    <span class="commission-text" id="commissionDisplay">Комиссия 30 ₽</span>
+                                </div>
+                            </div>
+
+                            <div class="transfer-row">
+                                <div class="transfer-row-block">
+                                    <span class="transfer-label">Спишем</span>
+                                    <span class="main-value" id="totalAmountDisplay">40 ₽</span>
+                                </div>
+                            </div>
+
+                            <div class="transfer-row">
+                                <div class="transfer-row-block">
+                                    <span class="transfer-label">Откуда</span>
+                                    <span class="main-value">12 460 540 ₽</span>
+                                    <span class="payment-account-text" id="paymentAccountDisplay">Платёжный счёт ••
+                                        6425</span>
+                                </div>
+                                <img src="./ruble-icon.png" alt="" class="ruble-icon">
+                            </div>
+                        </div>
+
+                        <button class="transfer-button" id="transferButtonText">Перевести 10 ₽</button>
                     </div>
 
-                    <div class="success-amount" id="successAmount">10 ₽</div>
+                    <!-- SUCCESS SCREEN -->
+                    <div class="success-screen" id="successScreen">
+                        <div class="success-wave" id="successWave"></div>
 
-                    <div class="final-ui" id="finalUI">
-                        <div class="final-title" id="finalTitle">Перевод выполнен</div>
-
-                        <div class="final-circle" id="finalCircle">
-                            <svg class="success-check-2" viewBox="0 0 24 24">
-                                <path fill="#ffffff" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                        <div class="success-circle" id="successCircle">
+                            <svg class="success-check" id="successCheck" viewBox="0 0 24 24">
+                                <path fill="#27ae60" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                             </svg>
                         </div>
 
-                        <div class="final-amount-label" id="finalAmountLabel">10 ₽</div>
+                        <div class="success-amount" id="successAmount">10 ₽</div>
 
-                        <div class="final-actions" id="finalActions">
-                            <img class="save-kvit" src="./Image.png" alt="">
-                        </div>
+                        <div class="final-ui" id="finalUI">
+                            <div class="final-title" id="finalTitle">Перевод выполнен</div>
 
-                        <div class="final-panel" id="finalPanel">
-                            <div class="drag-handle"></div>
-
-                            <div class="final-panel-status">
-                                <span class="transfer-willbe-get">Перевод будет зачислен в течение нескольких минут</span>
-                                <span class="few-days">В редких случаях срок зачисления увеличивается до нескольких дней</span>
+                            <div class="final-circle" id="finalCircle">
+                                <svg class="success-check-2" viewBox="0 0 24 24">
+                                    <path fill="#ffffff" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                                </svg>
                             </div>
 
-                            <div class="info-block-divider"></div>
+                            <div class="final-amount-label" id="finalAmountLabel">10 ₽</div>
 
-                            <div class="final-details">
-                                <h3>Подробности</h3>
-                                <div class="receiver">
-                                    <img class="receiver-image" src="./rus.png" alt="">
-                                    <div class="receiver-block">
-                                        <span class="receiver-block-text">Номер карты получателя</span>
-                                        <span class="receiver-block-card" id="finalDetailCard">••&#8202;4543</span>
+                            <div class="final-actions" id="finalActions">
+                                <img class="save-kvit" src="./Image.png" alt="">
+                            </div>
+
+                            <div class="final-panel" id="finalPanel">
+                                <div class="drag-handle"></div>
+
+                                <div class="final-panel-status">
+                                    <span class="transfer-willbe-get">Перевод будет зачислен в течение нескольких
+                                        минут</span>
+                                    <span class="few-days">В редких случаях срок зачисления увеличивается до нескольких
+                                        дней</span>
+                                </div>
+
+                                <div class="info-block-divider"></div>
+
+                                <div class="final-details">
+                                    <h3>Подробности</h3>
+                                    <div class="receiver">
+                                        <img class="receiver-image" src="./rus.png" alt="">
+                                        <div class="receiver-block">
+                                            <span class="receiver-block-text">Номер карты получателя</span>
+                                            <span class="receiver-block-card" id="finalDetailCard">••&#8202;4543</span>
+                                        </div>
                                     </div>
                                 </div>
+                                <button class="final-return-button">Вернуться на главный</button>
                             </div>
-                            <button class="final-return-button">Вернуться на главный</button>
                         </div>
                     </div>
-                </div>
 
-            </div><!-- /phone-screen -->
-        </div><!-- /phone-container -->
+                </div><!-- /phone-screen -->
+            </div><!-- /phone-container -->
 
-        <div class="controls">
-            <button class="btn-animate" onclick="startAnimation()">▶ Произвести</button>
-            <button class="btn-download" onclick="downloadVideo()">⬇ Скачать</button>
-        </div>
-    </div><!-- /right-column -->
-</div><!-- /page-wrapper -->
+            <div class="controls">
+                <button class="btn-animate" onclick="startAnimation()">▶ Произвести</button>
+                <button class="btn-download" onclick="downloadVideo()">⬇ Скачать</button>
+            </div>
+        </div><!-- /right-column -->
+    </div><!-- /page-wrapper -->
 
     <script>
 
@@ -1915,7 +1946,12 @@
 
                 // ── 1. Захват экрана ──────────────────────────────────
                 const stream = await navigator.mediaDevices.getDisplayMedia({
-                    video: { frameRate: 30, displaySurface: 'browser' },
+                    video: {
+                        frameRate: 60,
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 },
+                        displaySurface: 'browser'
+                    },
                     audio: false,
                     preferCurrentTab: true
                 });
@@ -1974,7 +2010,7 @@
                 // ── 6. Записываем ─────────────────────────────────────
                 const mr = new MediaRecorder(combinedStream, {
                     mimeType: selectedType,
-                    videoBitsPerSecond: 8_000_000
+                    videoBitsPerSecond: 20_000_000
                 });
 
                 const chunks = [];
