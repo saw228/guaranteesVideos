@@ -398,7 +398,6 @@
             color: #fff;
             transform: translateX(100%);
             z-index: 90;
-            border-radius: 0 0 30px 30px;
             overflow: hidden;
         }
 
@@ -609,7 +608,7 @@
         }
 
         .signal {
-            width: 30px;
+            width: 25px;
         }
 
         /* Success screen */
@@ -985,16 +984,16 @@
             display: flex;
             align-items: center;
             gap: 1px;
+            margin-top: 1px;
         }
 
         .battery-body-2 {
             position: relative;
             width: 24px;
             height: 13px;
-            border: 1.5px solid #818181;
             border-radius: 4px;
             overflow: hidden;
-            background: #818181;
+            background: #696769;
         }
 
         .battery-fill {
@@ -1021,10 +1020,13 @@
         }
 
         .battery-cap {
-            width: 2px;
-            height: 4px;
-            background: #818181;
+            width: 1px;
+            height: 2.5px;
+            background: #696766;
             border-radius: 1px;
+            border-radius: 100%;
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
         }
 
         /* =====================================================
@@ -1130,6 +1132,10 @@
             align-items: center;
             gap: 24px;
         }
+
+        .charge-svg {
+            margin-top: 5px;
+        }
     </style>
 </head>
 
@@ -1184,7 +1190,7 @@
                         </div>
                         <img class="status-bar-image" src="./Screenshot_8-removebg-preview.png" alt="">
                         <div class="status-right">
-                            <img src="./svyaz.png" alt="" class="signal">
+                            <img src="./svyaz1.png" alt="" class="signal">
                             <img src="./wifi.png" alt="" class="wifi">
                             <div id="batteryContainer"></div>
                         </div>
@@ -1369,7 +1375,7 @@
                             <div class="transfer-row">
                                 <div class="transfer-row-block">
                                     <span class="transfer-label">Откуда</span>
-                                    <span class="main-value">12 460 540 ₽</span>
+                                    <span class="main-value">22 771 392 ₽</span>
                                     <span class="payment-account-text" id="paymentAccountDisplay">Платёжный счёт ••
                                         6425</span>
                                 </div>
@@ -1847,7 +1853,7 @@
                 let cur = document.getElementById('displayCardNumber').textContent.replace(/\s/g, '') + d;
                 let fmt = ''; for (let j = 0; j < cur.length; j++) { if (j > 0 && j % 4 === 0) fmt += ' '; fmt += cur[j]; }
                 document.getElementById('displayCardNumber').textContent = fmt;
-                await wait(220 + Math.random() * 120);
+                await wait(220 + Math.random() * 500);
             }
 
             await wait(400);
